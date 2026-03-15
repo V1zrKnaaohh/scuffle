@@ -9,23 +9,27 @@ class Block:
     def draw(self):
         draw.rect(self.window, self.color, self.rect)
 
+
 def get_room(window, room_id):
-    walls = []
+    w = window.get_width()
+    h = window.get_height()
+    b = 100
+
+    border_top = Block(window, 0, 0, w, b, (50, 50, 50))
+    border_bottom = Block(window, 0, h - b, w, b, (50, 50, 50))
+    border_left = Block(window, 0, 0, b, h, (50, 50, 50))
+    border_right = Block(window, w - b, 0, b, h, (50, 50, 50))
+
+    base_borders = [border_top, border_bottom, border_left, border_right]
+
     if room_id == "trialroom1":
-        walls = [
-
+        return base_borders + [
+            Block(window, 400, 300, 200, 50)  # Пример стены в центре
         ]
 
     elif room_id == "fightroom1":
-
-        walls = [
-
-        ]
-
-    elif room_id == "fightroom1":
-
-        walls = [
+        return base_borders + [
 
         ]
 
-    return walls
+    return base_borders

@@ -14,18 +14,19 @@ class Orb:
         self.FRICTION = 0.85
         self.MAX_SPEED = 5
 
-    def update(self):
+    def update(self, walls, dt):
         keys = key.get_pressed()
         move_x = 0
         move_y = 0
+        move_dt = dt * 120
 
         if keys[K_w]: move_y -= 1
         if keys[K_s]: move_y += 1
         if keys[K_a]: move_x -= 1
         if keys[K_d]: move_x += 1
 
-        self.sx += move_x * self.ACC
-        self.sy += move_y * self.ACC
+        self.sx += move_x * self.ACC * move_dt
+        self.sy += move_y * self.ACC * move_dt
 
         if keys[K_LSHIFT]:
             self.sx *= 0.6
@@ -38,27 +39,27 @@ class Orb:
 
         self.sx *= self.FRICTION
         self.sy *= self.FRICTION
+        self.x += self.sx * move_dt
 
-        self.x += self.sx
-        self.y += self.sy
+        player_rect = Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
+        for wall in walls:
+            if player_rect.colliderect(wall.rect):
+                if self.sx > 0:
+                    self.x = wall.rect.left - self.radius
+                elif self.sx < 0:
+                    self.x = wall.rect.right + self.radius
+                self.sx = 0
 
-        border_size = 100
+        self.y += self.sy * move_dt
 
-        if self.x < border_size + self.radius:
-            self.x = border_size + self.radius
-            self.sx = 0
-        elif self.x > self.window.get_width() - border_size - self.radius:
-            self.x = self.window.get_width() - border_size - self.radius
-            self.sx = 0
-
-
-        if self.y < border_size + self.radius:
-            self.y = border_size + self.radius
-            self.sy = 0
-        elif self.y > self.window.get_height() - border_size - self.radius:
-            self.y = self.window.get_height() - border_size - self.radius
-            self.sy = 0
-
+        player_rect = Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
+        for wall in walls:
+            if player_rect.colliderect(wall.rect):
+                if self.sy > 0:
+                    self.y = wall.rect.top - self.radius
+                elif self.sy < 0:
+                    self.y = wall.rect.bottom + self.radius
+                self.sy = 0
 
     def draw(self):
         draw.circle(self.window, self.color, (int(self.x), int(self.y)), self.radius)
@@ -88,3 +89,6 @@ class Orb:
         gun_y = self.y + math.sin(angle) * distance
 
         return gun_x, gun_y, angle
+
+    def shot(self):
+        pass

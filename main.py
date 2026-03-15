@@ -1,9 +1,12 @@
 from pygame import *
 from objects import setup_objects
 from save_manager import save_data, load_data
-from classes.orb_class import Orb
-import math
 
+from classes.orb_class import Orb
+from classes.block_class import Block,get_room
+from classes.bullet_class import Bullet
+
+import math
 
 
 # окошко
@@ -30,10 +33,16 @@ player_orb = Orb(window, 500, 400, 35, (player_skin))
 gun_surf = Surface((30, 10), SRCALPHA)
 gun_surf.fill((200, 200, 200))
 
+bullets = []
+active_walls = []
+
+
  # главный цикл
 while running:
+    dt = clock.tick(120) / 1000.0
     window.fill("black")
     events = event.get()
+
 
     for e in events:
         if e.type == QUIT:
@@ -76,6 +85,7 @@ while running:
             state = "main_lobby"
 
         if objs["play_test"].is_pressed(events):
+            active_walls = get_room(window, "trialroom1")
             state = "game"
 
     elif state == "settings_menu":
@@ -106,22 +116,43 @@ while running:
         if objs["profile_back"].is_pressed(events):
             state = "main_lobby"
 
+
     elif state == "game":
+
+        for e in events:
+            if e.type == MOUSEBUTTONDOWN and e.button == 1:
+                gx, gy, g_angle = player_orb.get_gun_pos()
+
+                bullets.append(Bullet(gx, gy, g_angle, "player"))
+
+        player_orb.update(active_walls, dt)
+        for b in bullets[:]:
+            if not b.update(active_walls, dt):
+                bullets.remove(b)
+
+        window.fill("black")
+
+        for wall in active_walls:
+            wall.draw()
+        for bullet in bullets:
+            bullet.draw(window)
+        player_orb.draw()
+
         gx, gy, angle = player_orb.get_gun_pos()
         deg = math.degrees(-angle)
-
         rotated_gun = transform.rotate(gun_surf, deg)
+
         gun_rect = rotated_gun.get_rect(center=(gx, gy))
 
         window.blit(rotated_gun, gun_rect)
 
-        player_orb.update()
-        player_orb.draw()
+
         objs["game_back"].draw(global_volume)
 
         if objs["game_back"].is_pressed(events):
             state = "main_lobby"
 
+            bullets.clear()
 
 
     elif state == "host_menu":
