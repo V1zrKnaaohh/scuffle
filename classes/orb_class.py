@@ -15,7 +15,6 @@ class Orb:
         self.MAX_SPEED = 5
 
     def update(self):
-        # --- ТВОЙ ОРИГИНАЛЬНЫЙ КОД ---
         keys = key.get_pressed()
         move_x = 0
         move_y = 0
