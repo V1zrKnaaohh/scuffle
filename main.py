@@ -18,16 +18,16 @@ info = display.Info()
 window = display.set_mode((info.current_w, info.current_h), FULLSCREEN)
 window_center = (window.get_width() // 2, window.get_height() // 2)
 
-global_volume = 5
 running = True
 clock = time.Clock()
 state = "main_lobby"
+game_state = ""
 saved_settings = load_data()
 global_volume = saved_settings.get("volume", 5)
 
 objs = setup_objects(window, window_center, global_volume)
 
-player_skin = (255, 255, 255)
+player_skin = (185, 0, 255)
 player_orb = Orb(window, 500, 400, 35, (player_skin))
 
 gun_surf = Surface((30, 10), SRCALPHA)
@@ -85,6 +85,7 @@ while running:
             state = "main_lobby"
 
         if objs["play_test"].is_pressed(events):
+            game_state = "playtest"
             active_walls = get_room(window, "trialroom1")
             state = "game"
 
@@ -123,7 +124,7 @@ while running:
             if e.type == MOUSEBUTTONDOWN and e.button == 1:
                 gx, gy, g_angle = player_orb.get_gun_pos()
 
-                bullets.append(Bullet(gx, gy, g_angle, "player"))
+                bullets.append(Bullet(gx, gy, g_angle))
 
         player_orb.update(active_walls, dt)
         for b in bullets[:]:

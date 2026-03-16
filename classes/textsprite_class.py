@@ -1,9 +1,8 @@
 from pygame import *
 
 
-class Sprite:
-    def __init__(self, window, text, center, width, height, font_size=40,
-                 color=(255,255,255), text_color=(0,0,0)):
+class TextSprite():
+    def __init__(self, window, text, center, width, height, font_size=40, color=(255,255,255), text_color=(0,0,0)):
         self.window = window
         self.text = text
         self.width = width

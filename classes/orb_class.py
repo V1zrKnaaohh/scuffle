@@ -89,6 +89,3 @@ class Orb:
         gun_y = self.y + math.sin(angle) * distance
 
         return gun_x, gun_y, angle
-
-    def shot(self):
-        pass
