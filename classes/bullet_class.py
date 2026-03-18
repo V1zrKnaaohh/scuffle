@@ -3,7 +3,7 @@ import math
 
 
 class Bullet:
-    def __init__(self, x, y, angle):
+    def __init__(self, x, y, angle, spread):
         self.x = x
         self.y = y
         self.radius = 5

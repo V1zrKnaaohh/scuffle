@@ -11,8 +11,8 @@ class Orb:
         self.sx = 0
         self.sy = 0
         self.ACC = 0.8
-        self.FRICTION = 0.85
-        self.MAX_SPEED = 5
+        self.FRICTION = 0.87
+        self.MAX_SPEED = 6
 
     def update(self, walls, dt):
         keys = key.get_pressed()

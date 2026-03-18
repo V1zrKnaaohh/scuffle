@@ -1,6 +1,7 @@
 from pygame import *
 from objects import setup_objects
 from save_manager import save_data, load_data
+from random import randint
 
 from classes.orb_class import Orb
 from classes.block_class import Block,get_room
@@ -118,16 +119,28 @@ while running:
             state = "main_lobby"
 
 
+
+
     elif state == "game":
 
+        keys = key.get_pressed()
+
+        spread = 0
+
+        if not keys[K_LSHIFT]:
+            spread = math.radians(randint(-3, 3))
+
         for e in events:
+
             if e.type == MOUSEBUTTONDOWN and e.button == 1:
                 gx, gy, g_angle = player_orb.get_gun_pos()
 
-                bullets.append(Bullet(gx, gy, g_angle))
+                bullets.append(Bullet(gx, gy, g_angle + spread, "player"))
 
         player_orb.update(active_walls, dt)
+
         for b in bullets[:]:
+
             if not b.update(active_walls, dt):
                 bullets.remove(b)
 
@@ -135,18 +148,24 @@ while running:
 
         for wall in active_walls:
             wall.draw()
+
         for bullet in bullets:
             bullet.draw(window)
+
         player_orb.draw()
 
+
         gx, gy, angle = player_orb.get_gun_pos()
+
         deg = math.degrees(-angle)
+
         rotated_gun = transform.rotate(gun_surf, deg)
 
         gun_rect = rotated_gun.get_rect(center=(gx, gy))
 
         window.blit(rotated_gun, gun_rect)
 
+        # 5. КНОПКА НАЗАД
 
         objs["game_back"].draw(global_volume)
 
