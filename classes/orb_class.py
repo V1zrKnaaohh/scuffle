@@ -24,6 +24,10 @@ class Orb:
         self.reload_timer = 0
         self.reload_duration = 2.0
 
+        self.shot_sound = None
+        self.reload_sound = None
+        self.empty_sound = None
+
 
     def get_gun_pos(self):
         m_x, m_y = mouse.get_pos()
