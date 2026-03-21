@@ -1,18 +1,19 @@
 from classes.btn_class import Button
 from classes.textsprite_class import TextSprite
+from classes.inputbox_class import InputBox
 
-
-def setup_objects(window, window_center, global_volume):
-
+def setup_objects(window, window_center, global_volume, nickname):
     objs = {}
 
-    # мейн лобби
     objs["main_game_logo"] = TextSprite(window, "Scuffle", (window_center[0], window_center[1] - 215), 170, 60,320, (0,0,0), (255,255,255))
 
     objs["play"] = Button(window, "play", window_center, 170, 60)
     objs["profile"] = Button(window, "profile", (window_center[0], window_center[1] + 80), 170, 60)
     objs["settings"] = Button(window, "settings", (window_center[0], window_center[1] + 160), 170, 60)
     objs["exit"] = Button(window, "exit", (window_center[0], window_center[1] + 240), 170, 60)
+
+    objs["version_num"] = TextSprite(window, "0.0.3", (window_center[0], window_center[1] - 100), 40, 15, 30,(0, 0, 0), (105, 105, 105))
+
 
     # плей меню
     objs["play_text"] = TextSprite(window, "Play", (window_center[0], window_center[1] - 215), 170, 60,150, (0,0,0), (255,255,255))
@@ -37,7 +38,7 @@ def setup_objects(window, window_center, global_volume):
 
 
     # нозады
-    objs["profile_back"] = Button(window, "back", (window_center[0], window_center[1]), 170, 60)
+    objs["profile_back"] = Button(window, "back", (window_center[0], window_center[1] + 80), 170, 60)
     objs["connect_back"] = Button(window, "back", (window_center[0], window_center[1]), 170, 60)
     objs["host_back"] = Button(window, "back", (window_center[0], window_center[1]), 170, 60)
     objs["play_back"] = Button(window, "back", (window_center[0], window_center[1] + 240), 170, 60)
@@ -50,5 +51,8 @@ def setup_objects(window, window_center, global_volume):
 
 
 
+    # инпуты
+
+    objs["name_input"] = InputBox(window, (window_center[0], window_center[1]), 200, 50, nickname)
 
     return objs

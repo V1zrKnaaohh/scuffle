@@ -10,6 +10,12 @@ class Button:
         self.text_rect = self.text_surf.get_rect(center=self.rect.center)
         self.hovered = False
 
+        self.magazine_size = 2
+        self.current_bullets = self.magazine_size
+        self.reload_time = 2
+        self.reloading = False
+        self.reload_start = 0
+
     def draw(self, vol):
         if self.rect.collidepoint(mouse.get_pos()):
             if not self.hovered:

@@ -9,4 +9,4 @@ def load_data():
         with open("settings.json", "r") as f:
             return json.load(f)
     except FileNotFoundError:
-        return {"volume": 5, "state": "main_lobby"}
+        return {"volume": 5, "state": "main_lobby", "nickname": "Player"}
