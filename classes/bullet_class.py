@@ -3,19 +3,22 @@ import math
 
 
 class Bullet:
-    def __init__(self, x, y, angle, spread):
+    def __init__(self, x, y, angle, owner):
         self.x = x
         self.y = y
         self.radius = 5
         self.speed = 37
+        self.owner = owner
 
         self.vx = math.cos(angle) * self.speed
         self.vy = math.sin(angle) * self.speed
 
         self.rect = Rect(self.x - self.radius, self.y - self.radius, self.radius * 2, self.radius * 2)
         self.bounces = 0
+        self.lifetime = 0
 
     def update(self, walls, dt):
+        self.lifetime += dt
         move_dt = dt * 120
         total_dx = self.vx * move_dt
         total_dy = self.vy * move_dt

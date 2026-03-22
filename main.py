@@ -2,9 +2,12 @@ from pygame import *
 from objects import setup_objects
 from save_manager import save_data, load_data
 from random import randint
+
 from classes.block_class import get_room
 from classes.gamesession_class import GameSession
+from network import Network
 
+import threading
 
 init()
 mixer.init()
@@ -17,28 +20,44 @@ running = True
 clock = time.Clock()
 state = "main_lobby"
 
-
 saved_settings = load_data()
 global_volume = saved_settings.get("volume", 5)
 my_nickname = saved_settings.get("nickname", "Player")
+mixer.music.set_volume(global_volume / 10)
 
-
-gunshotsound = mixer.Sound('assets/gun_shot_sound.wav')
-gunreloadsound = mixer.Sound('assets/gun_reload_sound.wav')
-gunemptysound = mixer.Sound('assets/gun_empty_sound.wav')
-
-# Меню и объекты
 objs = setup_objects(window, window_center, global_volume, my_nickname)
 
-# Игровая сессия
 game_session = GameSession(window, global_volume)
-game_session.player_orb.shot_sound = gunshotsound
-game_session.player_orb.reload_sound = gunreloadsound
-game_session.player_orb.empty_sound = gunemptysound
-
 current_music = None
+font_waiting = font.SysFont("Arial", 36)
 
-# главный цикл
+
+
+def launch_host():
+    try:
+        game_session.net = Network(is_host=True)
+        game_session.active_walls = get_room(window, "trialroom1")
+        game_session.bullets.clear()
+
+        global state
+        state = "game"
+    except Exception as e:
+        print(f"Client error: {e}")
+
+
+def launch_client(target_ip):
+    try:
+        game_session.net = Network(ip=target_ip, is_host=False)
+        game_session.active_walls = get_room(window, "trialroom1")
+        game_session.bullets.clear()
+
+        global state
+        state = "game"
+    except Exception as e:
+        print(f"Client error: {e}")
+        state = "play_menu"
+
+
 while running:
     dt = clock.tick(120) / 1000.0
     events = event.get()
@@ -47,15 +66,12 @@ while running:
         if e.type == QUIT:
             running = False
 
-
     if state == "main_lobby" and current_music != "menu":
         mixer.music.load('assets/menu_music.wav')
-        mixer.music.set_volume(global_volume / 10)
         mixer.music.play(-1)
         current_music = "menu"
     elif state == "game" and current_music != "game":
         mixer.music.load('assets/game_music.wav')
-        mixer.music.set_volume(global_volume / 10)
         mixer.music.play(-1)
         current_music = "game"
 
@@ -95,6 +111,8 @@ while running:
         if objs["play_test"].is_pressed(events):
             game_session.active_walls = get_room(window, "trialroom1")
             game_session.bullets.clear()
+            game_session.player_orb.health = 100
+            game_session.player_orb.lifes = 3
             state = "game"
 
     elif state == "settings_menu":
@@ -116,7 +134,7 @@ while running:
         save_data(current_data)
 
         mixer.music.set_volume(global_volume / 10)
-        gunshotsound.set_volume(global_volume / 10)
+        game_session.player_orb.shot_sound.set_volume(global_volume / 10)
 
         if objs["settings_back"].is_pressed(events):
             state = "main_lobby"
@@ -136,27 +154,65 @@ while running:
             save_data(current_data)
             state = "main_lobby"
 
-
-    elif state == "game":
-        game_session.update(dt, events)
-        game_session.draw()
-
-        objs["game_back"].draw(global_volume)
-        if objs["game_back"].is_pressed(events):
-            state = "main_lobby"
-            game_session.bullets.clear()
-            game_session.active_walls.clear()
-
-
     elif state == "host_menu":
+        objs["host_text"].draw()
         objs["host_back"].draw(global_volume)
+        objs["host_start"].draw(global_volume)
+
+        if objs["host_start"].is_pressed(events):
+            threading.Thread(target=launch_host, daemon=True).start()
+            state = "waiting_screen"
+
         if objs["host_back"].is_pressed(events):
             state = "play_menu"
 
     elif state == "connect_menu":
+        objs["connect_text"].draw()
+        objs["connect_start"].draw(global_volume)
         objs["connect_back"].draw(global_volume)
-        if objs["connect_back"].is_pressed(events):
+        objs["ip_input"].draw()
+
+        for e in events:
+            objs["ip_input"].handle_event(e)
+            if objs["connect_back"].is_pressed([e]):
+                state = "play_menu"
+
+            if objs["connect_start"].is_pressed([e]):
+                ip_to_connect = objs["ip_input"].text.strip()
+                if not ip_to_connect: ip_to_connect = "127.0.0.1"
+                threading.Thread(target=launch_client, args=(ip_to_connect,), daemon=True).start()
+                state = "waiting_screen"
+
+
+    elif state == "waiting_screen":
+        text_surf = font_waiting.render("Waiting for connect", True, (255, 255, 255))
+        window.blit(text_surf, (window.get_width() // 2 - 150, window.get_height() // 2))
+        objs["host_back"].draw(global_volume)
+        if objs["host_back"].is_pressed(events):
             state = "play_menu"
+
+
+
+    elif state == "game":
+        result = game_session.update(dt, events)
+
+        if result == "main_lobby":
+            state = "main_lobby"
+            game_session.bullets.clear()
+            game_session.active_walls.clear()
+            game_session.player_orb.health = 100
+            game_session.player_orb.lifes = 3
+
+        if state == "game":
+            game_session.draw()
+            objs["game_back"].draw(global_volume)
+
+            if objs["game_back"].is_pressed(events):
+                state = "main_lobby"
+                game_session.bullets.clear()
+                game_session.active_walls.clear()
+                game_session.player_orb.health = 100
+                game_session.player_orb.lifes = 3
 
     display.update()
 

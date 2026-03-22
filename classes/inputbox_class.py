@@ -1,5 +1,5 @@
 from pygame import *
-
+import pyperclip
 
 class InputBox:
     def __init__(self, window, center, width, height, text='', font_size=32, max_chars=11):
@@ -28,6 +28,13 @@ class InputBox:
 
         if self.active:
             if event.type == KEYDOWN:
+                mods = key.get_mods()
+                if (mods & KMOD_CTRL or mods & KMOD_META) and event.key == K_v:
+                    paste_text = pyperclip.paste()
+                    for char in paste_text:
+                        if len(self.text) < self.max_chars:
+                            self.text += char
+
                 if event.key == K_BACKSPACE:
                     self.text = self.text[:-1]
                 elif event.key == K_RETURN:
