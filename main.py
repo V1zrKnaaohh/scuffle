@@ -1,7 +1,6 @@
 from pygame import *
 from objects import setup_objects
 from save_manager import save_data, load_data
-from random import randint
 
 from classes.block_class import get_room
 from classes.gamesession_class import GameSession
@@ -29,33 +28,29 @@ objs = setup_objects(window, window_center, global_volume, my_nickname)
 
 game_session = GameSession(window, global_volume)
 current_music = None
-font_waiting = font.SysFont("Arial", 36)
+font_waiting = font.Font("assets/my_font.otf", 35)
 
 
 
 def launch_host():
     try:
+        global game_session, state
+        game_session = GameSession(window, global_volume, is_host=True)
         game_session.net = Network(is_host=True)
         game_session.active_walls = get_room(window, "trialroom1")
-        game_session.bullets.clear()
-
-        global state
         state = "game"
     except Exception as e:
-        print(f"Client error: {e}")
-
+        print(f"Host error: {e}")
 
 def launch_client(target_ip):
     try:
+        global game_session, state
+        game_session = GameSession(window, global_volume, is_host=False)
         game_session.net = Network(ip=target_ip, is_host=False)
         game_session.active_walls = get_room(window, "trialroom1")
-        game_session.bullets.clear()
-
-        global state
         state = "game"
     except Exception as e:
         print(f"Client error: {e}")
-        state = "play_menu"
 
 
 while running:
@@ -193,10 +188,17 @@ while running:
 
 
 
+
     elif state == "game":
         result = game_session.update(dt, events)
+        if result == "main_lobby" or objs["game_back"].is_pressed(events):
+            if game_session.net:
+                try:
+                    game_session.net.client.close()
+                except:
+                    pass
+                game_session.net = None
 
-        if result == "main_lobby":
             state = "main_lobby"
             game_session.bullets.clear()
             game_session.active_walls.clear()
@@ -207,13 +209,7 @@ while running:
             game_session.draw()
             objs["game_back"].draw(global_volume)
 
-            if objs["game_back"].is_pressed(events):
-                state = "main_lobby"
-                game_session.bullets.clear()
-                game_session.active_walls.clear()
-                game_session.player_orb.health = 100
-                game_session.player_orb.lifes = 3
-
     display.update()
+
 
 quit()

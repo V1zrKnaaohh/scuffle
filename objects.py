@@ -9,7 +9,7 @@ def setup_objects(window, window_center, global_volume, nickname):
 
     # main_lobby
     objs["main_game_logo"] = TextSprite(window, "Scuffle", (cx, cy - 215), 170, 60, 320, (0, 0, 0), (255, 255, 255))
-    objs["version_num"] = TextSprite(window, "0.2.0", (cx, cy - 100), 40, 15, 30, (0, 0, 0), (105, 105, 105))
+    objs["version_num"] = TextSprite(window, "0.2.1", (cx, cy - 100), 40, 15, 30, (0, 0, 0), (105, 105, 105))
 
     objs["play"] = Button(window, "play", (cx, cy), 170, 60)
     objs["profile"] = Button(window, "profile", (cx, cy + 80), 170, 60)

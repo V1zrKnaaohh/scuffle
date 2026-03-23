@@ -24,7 +24,9 @@ def get_room(window, room_id):
 
     if room_id == "trialroom1":
         return base_borders + [
-            Block(window, 400, 300, 200, 50)  # Пример стены в центре
+            Block(window, 400, 300, 200, 50),
+            Block(window, 1200, 620, 80, 360),
+            Block(window, 600, 600, 240, 70),
         ]
 
     elif room_id == "fightroom1":
